@@ -1,0 +1,58 @@
+{
+  "quiz_title": "Quiz",
+  "quiz_model": "google/gemma-3-4b-it",
+  "evaluator_model": "google/gemini-2.5-flash-lite",
+  "total_questions": 2,
+  "valid_questions": 2,
+  "invalid_questions": 0,
+  "system_errors": 0,
+  "student_wins": 0,
+  "llm_wins": 2,
+  "student_success_rate": 0.0,
+  "student_passes": false,
+  "github_classroom_result": "STUDENTS_QUIZ_KEIKO_LOSE",
+  "question_results": [
+    {
+      "question_number": 1,
+      "question": "What is an Euler path?",
+      "correct_answer": "A path that visit every edge exactly once.",
+      "llm_answer": "An Euler path is a walk through a graph that visits every edge exactly once and returns to the starting node. It\u2019s a specific type of walk that satisfies a particular condition regarding the connectivity of the graph. Euler\u2019s path theorem states that an Euler path exists if and only if the graph is connected and either all nodes have an even degree (forming an Euler circuit, which is a closed Euler path) or exactly two nodes have an odd degree (forming an Euler path that doesn\u2019t return to the starting node).\n\nThe K\u00f6nigsberg bridge problem exemplified this concept. The city\u2019s landmasses, represented as nodes, and the bridges as edges, initially had an odd number of bridges connected to each landmass, making it impossible to find an Euler path.  Euler\u2019s abstraction of the problem \u2013 focusing solely on the connections between landmasses \u2013 was crucial to identifying this constraint.\n\nThe context materials highlight that Euler\u2019s approach of simplifying complex systems into nodes and edges is fundamental to modern network science, used in diverse applications like internet routing and social network analysis.",
+      "is_correct": true,
+      "student_wins": false,
+      "evaluation_explanation": "The student's answer is correct. An Euler path is defined as a path that visits every edge exactly once. The LLM's answer is also correct and provides additional relevant information about Euler circuits and the conditions for their existence, as well as historical context.",
+      "evaluation_confidence": "HIGH",
+      "validation": {
+        "valid": true,
+        "issues": [],
+        "reason": "The question asks for a definition of an Euler path, and the student's answer correctly defines it as a path that visits every edge exactly once. This aligns with the context materials which introduce Euler path concepts."
+      },
+      "error": null
+    },
+    {
+      "question_number": 2,
+      "question": "What is an Euler circuit?",
+      "correct_answer": "A path that visits every edge exactly once and starts and ends at the same vertex.",
+      "llm_answer": "An Euler circuit is a path in a graph that visits every edge exactly once and returns to the starting node.  According to the context material, Euler\u2019s theorem states that an Euler circuit exists if and only if either all nodes in the graph have an even degree (meaning they have an even number of connections) or exactly two nodes have an odd degree.  These odd-degree nodes must be the starting and ending points of the circuit.  The K\u00f6nigsberg bridge problem exemplifies this \u2013 the city\u2019s landmasses had an odd number of bridges each, preventing a single circuit that crossed each bridge once and returned to the start.",
+      "is_correct": true,
+      "student_wins": false,
+      "evaluation_explanation": "The student's answer is a correct and concise definition of an Euler circuit. It accurately states that it's a path visiting every edge exactly once and starting and ending at the same vertex.",
+      "evaluation_confidence": "HIGH",
+      "validation": {
+        "valid": true,
+        "issues": [],
+        "reason": "The question asks for a definition of an Euler circuit, which is a core concept in the provided context materials. The student's answer accurately defines an Euler circuit as a path that visits every edge exactly once and starts and ends at the same vertex. There are no issues with heavy math, prompt injection, answer quality, or context mismatch."
+      },
+      "error": null
+    }
+  ],
+  "validation_summary": {
+    "total_questions": 2,
+    "valid_questions": 2,
+    "invalid_questions": 0,
+    "validation_rate": 1.0,
+    "common_issues": {},
+    "recommendations": [
+      "\u2705 All questions passed validation!"
+    ]
+  }
+}
