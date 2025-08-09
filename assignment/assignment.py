@@ -1,3 +1,13 @@
+# /// script
+# requires-python = ">=3.11"
+# dependencies = [
+#     "altair==5.5.0",
+#     "numpy==2.3.2",
+#     "pandas==2.3.1",
+#     "python-igraph==0.11.9",
+# ]
+# ///
+
 import marimo
 
 __generated_with = "0.14.13"
@@ -13,6 +23,7 @@ def _(mo):
     Welcome to the Small-World Networks assignment! You'll learn about the fascinating properties of small-world networks through hands-on implementation and interactive visualization.
 
     Small-world networks exhibit two key properties:
+
     - **High clustering**: Nodes tend to form triangles (friends of friends are friends)
     - **Short path lengths**: Despite high clustering, nodes are connected by short paths
 
@@ -29,7 +40,6 @@ def _():
     import igraph
     import altair as alt
     import pandas as pd
-
     return alt, igraph, np, pd
 
 
@@ -107,23 +117,20 @@ def _(mo):
     return
 
 
-@app.cell
-def _(igraph):
-    #Task 1
-    @app.function
-    def compute_global_clustering(g):
-        """
-        Compute the global clustering coefficient of a graph.
+@app.function
+#Task 1
+def compute_global_clustering(g):
+    """
+    Compute the global clustering coefficient of a graph.
 
-        Args:
-            g (igraph.Graph): Input graph
+    Args:
+        g (igraph.Graph): Input graph
 
-        Returns:
-            float: Global clustering coefficient (0.0 to 1.0)
-        """
-        # TODO: Implement the global clustering coefficient calculation
-        pass
-    return (compute_global_clustering,)
+    Returns:
+        float: Global clustering coefficient (0.0 to 1.0)
+    """
+    # TODO: Implement the global clustering coefficient calculation
+    pass
 
 
 @app.cell(hide_code=True)
@@ -136,69 +143,68 @@ def _(mo):
     return
 
 
-@app.cell
-def _(igraph, np):
-    #Task 2
-    @app.function
-    def compute_average_path_length(g):
-        """
-        Compute the average shortest path length of a graph.
+@app.function
+#Task 2
+def compute_average_path_length(g):
+    """
+    Compute the average shortest path length of a graph.
 
-        Args:
-            g (igraph.Graph): Input graph (should be connected)
+    Args:
+        g (igraph.Graph): Input graph (should be connected)
 
-        Returns:
-            float: Average path length
-        """
-        # TODO: Implement the average path length calculation
-        # Remember to exclude diagonal elements (distance from node to itself = 0)
-        pass
-    return (compute_average_path_length,)
+    Returns:
+        float: Average path length
+    """
+    # TODO: Implement the average path length calculation
+    # Remember to exclude diagonal elements (distance from node to itself = 0)
+    pass
 
 
 @app.cell(hide_code=True)
 def _(mo):
-    mo.md(r"""
+    mo.md(
+        r"""
     ## Task 3: Small-World Coefficient
 
     The **small-world coefficient** (σ) quantifies how "small-world" a network is by comparing it to equivalent random and regular networks:
 
-    **σ = (C/C_random) / (L/L_random)**
+    $$
+    σ = \dfrac{(C/C_\text{random})}{(L/L_\text{random})}
+    $$
 
     Where:
+
     - C = clustering coefficient of the network
     - C_random = clustering coefficient of equivalent random network
     - L = average path length of the network
     - L_random = average path length of equivalent random network
 
-    **$$\sigma \gg 1$$** indicates small-world properties (high clustering but short paths like random graphs).
+    **$\sigma \gg 1$** indicates small-world properties (high clustering but short paths like random graphs).
 
     For the random reference, use the Erdős–Rényi random graph model. See the lecture notes for the formula.
-    """)
+    """
+    )
     return
 
 
-@app.cell
-def _(igraph):
-    #Task 3
-    @app.function
-    def compute_small_world_coefficient(g):
-        """
-        Compute the small-world coefficient using random graph as reference.
+@app.function
+#Task 3
+def compute_small_world_coefficient(g):
+    """
+    Compute the small-world coefficient using random graph as reference.
 
-        Args:
-            g (igraph.Graph): Input graph
+    Args:
+        g (igraph.Graph): Input graph
 
-        Returns:
-            float: Small-world coefficient (σ)
-        """
-        # TODO: Implement the small-world coefficient calculation
-        # 1. Compute C and L for the input graph
-        # 2. Generate equivalent Erdős–Rényi random graph with same n and m
-        # 3. Compute C_random and L_random for the random graph
-        # 4. Return σ = (C/C_random) / (L/L_random)
-        pass
-    return (compute_small_world_coefficient,)
+    Returns:
+        float: Small-world coefficient (σ)
+    """
+    # TODO: Implement the small-world coefficient calculation
+    # 1. Compute C and L for the input graph
+    # 2. Generate equivalent Erdős–Rényi random graph with same n and m
+    # 3. Compute C_random and L_random for the random graph
+    # 4. Return σ = (C/C_random) / (L/L_random)
+    pass
 
 
 @app.cell(hide_code=True)
@@ -234,8 +240,8 @@ def _(mo):
 
 
 @app.cell
-def _(alt, compute_average_path_length, compute_global_clustering, compute_small_world_coefficient, igraph, np, p_slider, pd):
-    # Generate Watts-Strogatz networks and compute metrics
+def _(alt, igraph, np, pd):
+    # Pre-compute all statistics once (independent of slider)
     def generate_ws_metrics(p_values, n=100, k=4):
         """Generate metrics for Watts-Strogatz networks across p values"""
         results = []
@@ -266,33 +272,24 @@ def _(alt, compute_average_path_length, compute_global_clustering, compute_small
 
         return pd.DataFrame(results)
 
-    # Generate data for visualization
+    # Generate all data once
     p_values = np.logspace(-4, 0, 50)  # From 0.0001 to 1.0
-    _ws_data = generate_ws_metrics(p_values)
+    _ws_data_full = generate_ws_metrics(p_values)
+    _ws_data_full
+    return (_ws_data_full,)
 
-    # Prepare data for visualization
-    if len(_ws_data) > 0:
-        _c0 = _ws_data.iloc[0]['clustering']  # clustering at p≈0
-        _l0 = _ws_data.iloc[0]['path_length']  # path length at p≈0
 
-    # Create current point data
+@app.cell 
+def _(alt, p_slider, pd, _ws_data_full):
+    # Filter data up to current slider value
     _current_p = p_slider.value
-    try:
-        _current_g = igraph.Graph.Watts_Strogatz(dim=1, size=100, nei=2, p=_current_p)
-        if _current_g.is_connected():
-            _current_c = compute_global_clustering(_current_g)
-            _current_l = compute_average_path_length(_current_g)
-            _current_sigma = compute_small_world_coefficient(_current_g)
+    _ws_data = _ws_data_full[_ws_data_full['p'] <= _current_p].copy() if len(_ws_data_full) > 0 else pd.DataFrame()
 
-            _current_data = pd.DataFrame([{
-                'p': _current_p,
-                'clustering': _current_c,
-                'path_length': _current_l,
-                'small_world': _current_sigma
-            }])
-        else:
-            _current_data = pd.DataFrame()
-    except:
+    # Find the closest point in pre-computed data for current marker
+    if len(_ws_data_full) > 0:
+        _closest_idx = (_ws_data_full['p'] - _current_p).abs().idxmin()
+        _current_data = _ws_data_full.iloc[[_closest_idx]].copy()
+    else:
         _current_data = pd.DataFrame()
 
     # Create interactive visualization
