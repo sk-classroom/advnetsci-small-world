@@ -270,13 +270,10 @@ def _(alt, compute_average_path_length, compute_global_clustering, compute_small
     p_values = np.logspace(-4, 0, 50)  # From 0.0001 to 1.0
     _ws_data = generate_ws_metrics(p_values)
 
-    # Normalize metrics for comparison (relative to p=0 values)
+    # Prepare data for visualization
     if len(_ws_data) > 0:
         _c0 = _ws_data.iloc[0]['clustering']  # clustering at p≈0
         _l0 = _ws_data.iloc[0]['path_length']  # path length at p≈0
-
-        _ws_data['clustering_normalized'] = _ws_data['clustering'] / _c0
-        _ws_data['path_length_normalized'] = _ws_data['path_length'] / _l0
 
     # Create current point data
     _current_p = p_slider.value
@@ -289,8 +286,8 @@ def _(alt, compute_average_path_length, compute_global_clustering, compute_small
 
             _current_data = pd.DataFrame([{
                 'p': _current_p,
-                'clustering_normalized': _current_c / _c0 if len(_ws_data) > 0 else _current_c,
-                'path_length_normalized': _current_l / _l0 if len(_ws_data) > 0 else _current_l,
+                'clustering': _current_c,
+                'path_length': _current_l,
                 'small_world': _current_sigma
             }])
         else:
@@ -304,31 +301,31 @@ def _(alt, compute_average_path_length, compute_global_clustering, compute_small
         _base = alt.Chart(_ws_data).add_selection(
             alt.selection_interval()
         ).transform_fold(
-            ['clustering_normalized', 'path_length_normalized'],
+            ['clustering', 'path_length'],
             as_=['metric', 'value']
         )
 
         # Line chart
         _lines = _base.mark_line(strokeWidth=3).encode(
             x=alt.X('p:Q', scale=alt.Scale(type='log'), title='Rewiring Probability (p)'),
-            y=alt.Y('value:Q', title='Normalized Value'),
+            y=alt.Y('value:Q', title='Value'),
             color=alt.Color('metric:N',
-                          scale=alt.Scale(domain=['clustering_normalized', 'path_length_normalized'],
+                          scale=alt.Scale(domain=['clustering', 'path_length'],
                                         range=['blue', 'red']),
                           legend=alt.Legend(title="Metric",
-                                          labelExpr="datum.value == 'clustering_normalized' ? 'Clustering C(p)/C(0)' : 'Path Length L(p)/L(0)'"))
+                                          labelExpr="datum.value == 'clustering' ? 'Clustering Coefficient' : 'Average Path Length'"))
         )
 
         # Current position marker
         if len(_current_data) > 0:
             _current_points = alt.Chart(_current_data).transform_fold(
-                ['clustering_normalized', 'path_length_normalized'],
+                ['clustering', 'path_length'],
                 as_=['metric', 'value']
             ).mark_circle(size=200, stroke='black', strokeWidth=2).encode(
                 x=alt.X('p:Q', scale=alt.Scale(type='log')),
                 y=alt.Y('value:Q'),
                 color=alt.Color('metric:N',
-                              scale=alt.Scale(domain=['clustering_normalized', 'path_length_normalized'],
+                              scale=alt.Scale(domain=['clustering', 'path_length'],
                                             range=['blue', 'red']),
                               legend=None)
             )
@@ -375,7 +372,9 @@ def _(alt, compute_average_path_length, compute_global_clustering, compute_small
 
         _final_chart
     else:
-        alt.Chart().mark_text(text="Please implement the required functions to see the visualization", fontSize=16)
+        _final_chart = alt.Chart().mark_text(text="Please implement the required functions to see the visualization", fontSize=16)
+
+    _final_chart
     return
 
 
@@ -387,8 +386,8 @@ def _(mo):
     The interactive plot above shows three key insights about small-world networks:
 
     1. **Top Panel**: Shows how clustering coefficient C(p) and path length L(p) change with rewiring probability
-       - **Blue line**: Clustering coefficient (normalized by C(0))
-       - **Red line**: Average path length (normalized by L(0))
+       - **Blue line**: Clustering coefficient
+       - **Red line**: Average path length
 
     2. **Bottom Panel**: Shows the small-world coefficient σ = (C/C_random)/(L/L_random)
        - **σ >> 1**: Strong small-world properties
