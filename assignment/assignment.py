@@ -102,7 +102,7 @@ def _(mo):
     - A **triangle** is a set of 3 fully connected nodes
     - A **connected triple** is a set of 3 nodes where at least 2 edges exist
 
-    In igraph, you can use `g.transitivity_undirected()` for the global clustering coefficient.
+    Research how to implement this calculation efficiently.
     """)
     return
 
@@ -114,15 +114,14 @@ def _(igraph):
     def compute_global_clustering(g):
         """
         Compute the global clustering coefficient of a graph.
-        
+
         Args:
             g (igraph.Graph): Input graph
-            
+
         Returns:
             float: Global clustering coefficient (0.0 to 1.0)
         """
         # TODO: Implement the global clustering coefficient calculation
-        # Hint: Use igraph's transitivity_undirected() method
         pass
     return (compute_global_clustering,)
 
@@ -133,13 +132,6 @@ def _(mo):
     ## Task 2: Average Path Length
 
     The **average path length** (also called **characteristic path length**) is the average number of edges in the shortest paths between all pairs of nodes.
-
-    For a connected graph with N nodes:
-    **L = (1 / (N(N-1))) × Σ d(i,j)**
-
-    Where d(i,j) is the shortest path distance between nodes i and j.
-
-    In igraph, you can use `g.distances()` to get all pairwise distances.
     """)
     return
 
@@ -151,16 +143,15 @@ def _(igraph, np):
     def compute_average_path_length(g):
         """
         Compute the average shortest path length of a graph.
-        
+
         Args:
             g (igraph.Graph): Input graph (should be connected)
-            
+
         Returns:
             float: Average path length
         """
         # TODO: Implement the average path length calculation
-        # Hint: Use g.distances() to get distance matrix, then compute mean
-        # Be careful to exclude diagonal elements (distance from node to itself = 0)
+        # Remember to exclude diagonal elements (distance from node to itself = 0)
         pass
     return (compute_average_path_length,)
 
@@ -176,13 +167,13 @@ def _(mo):
 
     Where:
     - C = clustering coefficient of the network
-    - C_random = clustering coefficient of equivalent random network  
+    - C_random = clustering coefficient of equivalent random network
     - L = average path length of the network
     - L_random = average path length of equivalent random network
 
-    **σ >> 1** indicates small-world properties (high clustering but short paths like random graphs).
+    **$$\sigma \gg 1$$** indicates small-world properties (high clustering but short paths like random graphs).
 
-    For the random reference, use an Erdős–Rényi random graph with same number of nodes and edges.
+    For the random reference, use the Erdős–Rényi random graph model. See the lecture notes for the formula.
     """)
     return
 
@@ -194,10 +185,10 @@ def _(igraph):
     def compute_small_world_coefficient(g):
         """
         Compute the small-world coefficient using random graph as reference.
-        
+
         Args:
             g (igraph.Graph): Input graph
-            
+
         Returns:
             float: Small-world coefficient (σ)
         """
@@ -206,8 +197,6 @@ def _(igraph):
         # 2. Generate equivalent Erdős–Rényi random graph with same n and m
         # 3. Compute C_random and L_random for the random graph
         # 4. Return σ = (C/C_random) / (L/L_random)
-        # 
-        # Hint: Use igraph.Graph.Erdos_Renyi(n=n_nodes, m=n_edges) for random graph
         pass
     return (compute_small_world_coefficient,)
 
@@ -219,10 +208,10 @@ def _(mo):
     ## Interactive Visualization: Watts-Strogatz Model
 
     Now let's explore how these metrics change as we vary the rewiring probability in the Watts-Strogatz model!
-    
+
     The **Watts-Strogatz model** starts with a ring lattice and randomly rewires edges with probability `p`:
     - `p = 0`: Regular ring lattice (high clustering, long paths)
-    - `p = 1`: Random graph (low clustering, short paths)  
+    - `p = 1`: Random graph (low clustering, short paths)
     - `0 < p < 1`: Small-world region (high clustering AND short paths)
 
     Use the slider below to explore different rewiring probabilities:
@@ -234,10 +223,10 @@ def _(mo):
 def _(mo):
     # Rewiring probability slider
     p_slider = mo.ui.slider(
-        start=0.0, 
-        stop=1.0, 
-        step=0.01, 
-        value=0.1, 
+        start=0.0,
+        stop=1.0,
+        step=0.01,
+        value=0.1,
         label="Rewiring Probability (p)"
     )
     p_slider
@@ -250,21 +239,21 @@ def _(alt, compute_average_path_length, compute_global_clustering, compute_small
     def generate_ws_metrics(p_values, n=100, k=4):
         """Generate metrics for Watts-Strogatz networks across p values"""
         results = []
-        
+
         for p in p_values:
             try:
                 # Generate Watts-Strogatz graph
                 g = igraph.Graph.Watts_Strogatz(dim=1, size=n, nei=k//2, p=p)
-                
+
                 # Ensure the graph is connected
                 if not g.is_connected():
                     continue
-                
+
                 # Compute metrics using the student's functions
                 C = compute_global_clustering(g)
                 L = compute_average_path_length(g)
                 sigma = compute_small_world_coefficient(g)
-                
+
                 results.append({
                     'p': p,
                     'clustering': C,
@@ -274,7 +263,7 @@ def _(alt, compute_average_path_length, compute_global_clustering, compute_small
             except:
                 # Skip problematic parameter values
                 continue
-                
+
         return pd.DataFrame(results)
 
     # Generate data for visualization
@@ -285,7 +274,7 @@ def _(alt, compute_average_path_length, compute_global_clustering, compute_small
     if len(_ws_data) > 0:
         _c0 = _ws_data.iloc[0]['clustering']  # clustering at p≈0
         _l0 = _ws_data.iloc[0]['path_length']  # path length at p≈0
-        
+
         _ws_data['clustering_normalized'] = _ws_data['clustering'] / _c0
         _ws_data['path_length_normalized'] = _ws_data['path_length'] / _l0
 
@@ -297,7 +286,7 @@ def _(alt, compute_average_path_length, compute_global_clustering, compute_small
             _current_c = compute_global_clustering(_current_g)
             _current_l = compute_average_path_length(_current_g)
             _current_sigma = compute_small_world_coefficient(_current_g)
-            
+
             _current_data = pd.DataFrame([{
                 'p': _current_p,
                 'clustering_normalized': _current_c / _c0 if len(_ws_data) > 0 else _current_c,
@@ -323,7 +312,7 @@ def _(alt, compute_average_path_length, compute_global_clustering, compute_small
         _lines = _base.mark_line(strokeWidth=3).encode(
             x=alt.X('p:Q', scale=alt.Scale(type='log'), title='Rewiring Probability (p)'),
             y=alt.Y('value:Q', title='Normalized Value'),
-            color=alt.Color('metric:N', 
+            color=alt.Color('metric:N',
                           scale=alt.Scale(domain=['clustering_normalized', 'path_length_normalized'],
                                         range=['blue', 'red']),
                           legend=alt.Legend(title="Metric",
@@ -338,12 +327,12 @@ def _(alt, compute_average_path_length, compute_global_clustering, compute_small
             ).mark_circle(size=200, stroke='black', strokeWidth=2).encode(
                 x=alt.X('p:Q', scale=alt.Scale(type='log')),
                 y=alt.Y('value:Q'),
-                color=alt.Color('metric:N', 
+                color=alt.Color('metric:N',
                               scale=alt.Scale(domain=['clustering_normalized', 'path_length_normalized'],
                                             range=['blue', 'red']),
                               legend=None)
             )
-            
+
             _combined_chart = (_lines + _current_points).resolve_scale(
                 color='independent'
             ).properties(
@@ -383,7 +372,7 @@ def _(alt, compute_average_path_length, compute_global_clustering, compute_small
         _final_chart = alt.vconcat(_combined_chart, _sigma_chart).resolve_scale(
             x='shared'
         )
-        
+
         _final_chart
     else:
         alt.Chart().mark_text(text="Please implement the required functions to see the visualization", fontSize=16)
@@ -405,13 +394,13 @@ def _(mo):
        - **σ >> 1**: Strong small-world properties
        - **Peak around p ≈ 0.01-0.1**: Optimal small-world region
 
-    3. **Interactive Elements**: 
+    3. **Interactive Elements**:
        - Move the slider to see how your current choice of p affects all metrics
        - The black circles show your current position on the curves
 
     ### Key Observations:
     - At **p = 0**: High clustering, long paths (regular lattice)
-    - At **p = 1**: Low clustering, short paths (random graph)  
+    - At **p = 1**: Low clustering, short paths (random graph)
     - At **intermediate p**: High clustering AND short paths (small-world!)
 
     The small-world regime occurs when clustering decreases slowly but path length drops rapidly as p increases.
