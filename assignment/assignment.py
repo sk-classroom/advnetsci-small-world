@@ -110,6 +110,7 @@ def _(mo):
 @app.cell
 def _(igraph):
     #Task 1
+    @app.function
     def compute_global_clustering(g):
         """
         Compute the global clustering coefficient of a graph.
@@ -146,6 +147,7 @@ def _(mo):
 @app.cell
 def _(igraph, np):
     #Task 2
+    @app.function
     def compute_average_path_length(g):
         """
         Compute the average shortest path length of a graph.
@@ -188,6 +190,7 @@ def _(mo):
 @app.cell
 def _(igraph):
     #Task 3
+    @app.function
     def compute_small_world_coefficient(g):
         """
         Compute the small-world coefficient using random graph as reference.
