@@ -16,7 +16,7 @@ import random
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
-from assignment.assignment_teacher import compute_global_clustering
+from assignment.assignment import compute_global_clustering
 
 # %% Test ------------
 # Create initial ring lattice (p=0)

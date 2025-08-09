@@ -16,7 +16,7 @@ import random
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
-from assignment.assignment_teacher import (
+from assignment.assignment import (
     compute_small_world_coefficient,
     compute_global_clustering,
     compute_average_path_length,

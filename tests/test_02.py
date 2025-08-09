@@ -16,7 +16,7 @@ import random
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
-from assignment.assignment_teacher import compute_average_path_length
+from assignment.assignment import compute_average_path_length
 
 # %% Test ------------
 # Create initial ring lattice (p=0)
