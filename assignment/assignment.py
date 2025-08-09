@@ -240,7 +240,7 @@ def _(mo):
 
 
 @app.cell
-def _(alt, igraph, np, pd):
+def _(igraph, np, pd):
     # Pre-compute all statistics once (independent of slider)
     def generate_ws_metrics(p_values, n=100, k=4):
         """Generate metrics for Watts-Strogatz networks across p values"""
@@ -280,7 +280,7 @@ def _(alt, igraph, np, pd):
 
 
 @app.cell 
-def _(alt, p_slider, pd, _ws_data_full):
+def _(p_slider, pd, _ws_data_full):
     # Filter data up to current slider value
     _current_p = p_slider.value
     _ws_data = _ws_data_full[_ws_data_full['p'] <= _current_p].copy() if len(_ws_data_full) > 0 else pd.DataFrame()
@@ -291,7 +291,12 @@ def _(alt, p_slider, pd, _ws_data_full):
         _current_data = _ws_data_full.iloc[[_closest_idx]].copy()
     else:
         _current_data = pd.DataFrame()
+    
+    return (_ws_data, _current_data, _current_p)
 
+
+@app.cell
+def _(alt, _ws_data, _current_data, _current_p):
     # Create interactive visualization
     if len(_ws_data) > 0:
         # Base chart for the curves
