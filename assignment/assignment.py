@@ -5,6 +5,7 @@
 #     "numpy==2.3.2",
 #     "pandas==2.3.1",
 #     "python-igraph==0.11.9",
+#     "pyarrow",
 # ]
 # ///
 
@@ -240,7 +241,7 @@ def _(mo):
 
 
 @app.cell
-def _(igraph, np, pd):
+def _(compute_average_path_length, compute_global_clustering, compute_small_world_coefficient, igraph, np, pd):
     # Pre-compute all statistics once (independent of slider)
     def generate_ws_metrics(p_values, n=100, k=4):
         """Generate metrics for Watts-Strogatz networks across p values"""
