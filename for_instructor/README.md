@@ -4,7 +4,6 @@
 
 - [ ] Write test scripts
   - Write test scripts (e.g., `test_01.py`) and place them in the `tests` folder
-  - Make sure that the grading works locally by running `bash grading-toolkit/grade_notebook.sh tests/test_01.py for_instructor/assignment_teacher.ipynb answer`
 - [ ] Create the teacher notebook with answers in "grading/assignment.py"
 - [ ] Test run the teacher notebook by running
   - `uv run tests/test_01.py`  (more tests if needed)
@@ -51,13 +50,44 @@
 
 ## How to decrypt the teacher's notebook
 
+1) Ensure the encryption key is available as an environment variable (recommended name):
+
+- macOS/Linux (bash or zsh):
+  ```bash
+  export GITHUB_CLASSROOM_ASSIGNMENT_KEY='your-very-strong-secret'
+  ```
+- Windows PowerShell:
+  ```powershell
+  $Env:GITHUB_CLASSROOM_ASSIGNMENT_KEY = 'your-very-strong-secret'
+  ```
+
+Tip: Avoid printing the secret in CI logs. Locally, you can verify it’s set (don’t do this in CI):
+```bash
+echo "${GITHUB_CLASSROOM_ASSIGNMENT_KEY:+set}"
+```
+
+2) Decrypt using OpenSSL with PBKDF2 and iterations (recommended):
 ```bash
 openssl enc -d -aes-256-cbc -salt -pbkdf2 -iter 100000 \
   -in ./grading/assignment.py.enc \
   -out ./grading/assignment.py \
   -pass env:GITHUB_CLASSROOM_ASSIGNMENT_KEY
 ```
-- Ensure the same environment variable (`GITHUB_CLASSROOM_ASSIGNMENT_KEY`) is set in your shell before decrypting. You may change the variable name if desired, but keep the `-pass env:VAR_NAME` format.
+
+3) Alternative (less preferred): pass the value explicitly, but always quote it:
+```bash
+openssl enc -d -aes-256-cbc -salt -pbkdf2 -iter 100000 \
+  -in ./grading/assignment.py.enc \
+  -out ./grading/assignment.py \
+  -pass pass:"$GITHUB_CLASSROOM_ASSIGNMENT_KEY"
+```
+
+4) Safety/cleanup:
+- Do not commit `grading/assignment.py`. Ensure it’s in `.gitignore`.
+- Remove the decrypted file when done grading:
+  ```bash
+  rm ./grading/assignment.py
+  ```
 
 ## How to use `update-repo.sh` (Propagate Template Updates to Student Repos)
 
