@@ -13,8 +13,21 @@
 - [ ] Generate the student version and the encrypted teacher's notebook
   - Copy "./grading/assignment.py" to "./assignment/assignment.py"
   - Remove the code to test in the student version
-  - Set the password to the environment variable `ENCRYPTION_PASSWORD`
-  - Run the `openssl enc -aes256 -in grading/assignment.py -out grading/assignment.py.enc -pass pass:$ENCRYPTION_PASSWORD`
+  - Set an environment variable for the encryption key (e.g., `GITHUB_CLASSROOM_ASSIGNMENT_KEY`)
+  - Encrypt using OpenSSL with PBKDF2 and iterations (recommended):
+    ```bash
+    openssl enc -aes-256-cbc -salt -pbkdf2 -iter 100000 \
+      -in grading/assignment.py \
+      -out grading/assignment.py.enc \
+      -pass env:GITHUB_CLASSROOM_ASSIGNMENT_KEY
+    ```
+    - Alternatively (less preferred), if you must pass the value explicitly, always quote it to avoid issues with special characters:
+      ```bash
+      openssl enc -aes-256-cbc -salt -pbkdf2 -iter 100000 \
+        -in grading/assignment.py \
+        -out grading/assignment.py.enc \
+        -pass pass:"$GITHUB_CLASSROOM_ASSIGNMENT_KEY"
+      ```
 - [ ] Add the encrypted teacher's notebook to the repository
   - Remove all commit history if needed by following these steps:
     1. Create a fresh orphan branch: `git checkout --orphan latest_branch`
@@ -39,9 +52,12 @@
 ## How to decrypt the teacher's notebook
 
 ```bash
-openssl enc -d -aes256 -pass pass:mypassword -in ./grading/assignment.py.enc >./grading/assignment.py
+openssl enc -d -aes-256-cbc -salt -pbkdf2 -iter 100000 \
+  -in ./grading/assignment.py.enc \
+  -out ./grading/assignment.py \
+  -pass env:GITHUB_CLASSROOM_ASSIGNMENT_KEY
 ```
-- Change the password used to encrypt the notebook
+- Ensure the same environment variable (`GITHUB_CLASSROOM_ASSIGNMENT_KEY`) is set in your shell before decrypting. You may change the variable name if desired, but keep the `-pass env:VAR_NAME` format.
 
 ## How to use `update-repo.sh` (Propagate Template Updates to Student Repos)
 
