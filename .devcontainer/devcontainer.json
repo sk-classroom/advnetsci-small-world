@@ -4,8 +4,22 @@
     "cpus": 4
   },
   "waitFor": "onCreateCommand",
-  "updateContentCommand": "curl -LsSf https://astral.sh/uv/install.sh | sh && export PATH=\"$HOME/.cargo/bin:$PATH\" && uv venv && . $HOME/.cargo/env && pip install marimo && uv pip install -r requirements.txt",
-  "postCreateCommand": "",
+  "updateContentCommand": [
+    "curl -LsSf https://astral.sh/uv/install.sh | sh",
+    "export PATH=\"$HOME/.cargo/bin:$PATH\"",
+    "uv venv",
+    ". $HOME/.cargo/env",
+    "pip install marimo",
+    "uv pip install -r requirements.txt"
+  ],
+  "postCreateCommand": "nohup uv marimo edit --host 0.0.0.0 --port 2718 > /tmp/marimo.log 2>&1 &",
+  "forwardPorts": [2718],
+  "portsAttributes": {
+    "2718": {
+      "label": "Marimo Editor",
+      "onAutoForward": "openPreview"
+    }
+  },
   "customizations": {
     "codespaces": {
       "openFiles": []
