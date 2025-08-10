@@ -103,6 +103,6 @@ jobs:
         TASK-1_RESULTS: "${{steps.task-1.outputs.result}}"
         TASK-2_RESULTS: "${{steps.task-2.outputs.result}}"
         TASK-3_RESULTS: "${{steps.task-3.outputs.result}}"
-        QUIZ_CHALLENGE_RESULTS: "${{steps.quiz-challenge.outputs.result}}"
+        QUIZ-CHALLENGE_RESULTS: "${{steps.quiz-challenge.outputs.result}}"
       with:
         runners: task-1,task-2,task-3,quiz-challenge
