@@ -113,8 +113,7 @@ uv run python -m grading.llm_quiz \
     --config "$CONFIG" \
     --quiz-file "$QUIZ_FILE" \
     --api-key "$API_KEY" \
-    --output "$OUTPUT" \
-    --verbose
+    --output "$OUTPUT" 
 
 # Check the result
 if [[ -f "$OUTPUT" ]]; then

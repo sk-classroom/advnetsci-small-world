@@ -265,9 +265,43 @@ class QuizRunner:
         for question in questions:
             logger.info(f"Processing question {question.number}: {question.question[:50]}...")
             
-            # Skip invalid questions
+            # Handle invalid questions - include them in results with detailed validation info
             if not question.validation_result.valid:
-                logger.warning(f"Question {question.number} failed validation, skipping")
+                # Create result for invalid question with detailed validation explanation
+                invalid_reason_details = []
+                for issue in question.validation_result.issues:
+                    if issue.value == "context_mismatch":
+                        invalid_reason_details.append("The question does not relate to the provided context materials (small-world networks lecture content)")
+                    elif issue.value == "heavy_math":
+                        invalid_reason_details.append("The question requires complex mathematical derivations or extensive calculations")
+                    elif issue.value == "prompt_injection":
+                        invalid_reason_details.append("The question contains attempts to manipulate the AI system")
+                    elif issue.value == "answer_quality":
+                        invalid_reason_details.append("The provided answer appears to be incorrect or poorly formed")
+                
+                detailed_reason = f"{question.validation_result.reason}"
+                if invalid_reason_details:
+                    detailed_reason += f" Specific issues: {'; '.join(invalid_reason_details)}"
+                
+                logger.warning(f"Question {question.number} REJECTED - {detailed_reason}")
+                print(f"\n❌ QUESTION {question.number} REJECTED")
+                print(f"Question: {question.question}")
+                print(f"Reason: {detailed_reason}")
+                if question.validation_result.issues:
+                    print(f"Issues found: {[issue.value for issue in question.validation_result.issues]}")
+                print(f"Confidence: {question.validation_result.confidence.upper()}")
+                print("-" * 60)
+                
+                result = QuestionResult(
+                    question=question,
+                    llm_answer="Question rejected during validation",
+                    is_correct=False,
+                    student_wins=False,
+                    evaluation_explanation=f"INVALID QUESTION: {detailed_reason}",
+                    evaluation_confidence="HIGH",
+                    error=f"Validation failed: {detailed_reason}"
+                )
+                question_results.append(result)
                 continue
             
             # Get LLM answer
@@ -359,6 +393,17 @@ class QuizRunner:
         
         # Generate validation summary
         validation_summary = self.validator.get_validation_summary(validation_results)
+        
+        # Print summary of rejected questions
+        rejected_questions = [qr for qr in question_results if "INVALID QUESTION" in qr.evaluation_explanation]
+        if rejected_questions:
+            print(f"\n{'='*80}")
+            print(f"VALIDATION SUMMARY: {len(rejected_questions)} QUESTION(S) REJECTED")
+            print(f"{'='*80}")
+            for qr in rejected_questions:
+                print(f"Question {qr.question.number}: {qr.question.question[:100]}...")
+                print(f"Rejection reason: {qr.evaluation_explanation.replace('INVALID QUESTION: ', '')}")
+                print("-" * 40)
         
         return QuizResults(
             total_questions=len(questions),
