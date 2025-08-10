@@ -773,38 +773,24 @@ STUDENT_WINS: [TRUE/FALSE] (TRUE if LLM got it wrong, FALSE if LLM got it right)
         else:
             results["student_success_rate"] = 0.0
 
-        # Add GitHub Classroom markers with flexible criteria to prevent gaming
+        # Add GitHub Classroom markers - all questions must be valid
         has_evaluated_questions = evaluated_questions > 0
-        
-        # Flexible minimum valid questions based on total submission size
         total_questions = results["total_questions"]
-        if total_questions == 1:
-            # Single question: must be valid and stump the LLM
-            min_valid_questions = 1
-            required_validation_rate = 1.0  # 100% validation rate (the 1 question must be valid)
-        elif total_questions == 2:
-            # Two questions: at least 1 valid, but prefer both valid  
-            min_valid_questions = 1
-            required_validation_rate = 0.5  # At least 50% valid (1 out of 2)
-        else:
-            # Multiple questions: require majority to be valid to prevent gaming
-            min_valid_questions = max(2, int(total_questions * 0.6))  # At least 60% or minimum 2
-            required_validation_rate = 0.6  # At least 60% validation rate
         
-        has_minimum_valid_questions = results["valid_questions"] >= min_valid_questions
+        # All questions must be valid - no gaming allowed
+        all_questions_valid = results["valid_questions"] == total_questions
         
-        # Check validation rate
-        validation_rate = results["valid_questions"] / total_questions if total_questions > 0 else 0.0
-        has_good_validation_rate = validation_rate >= required_validation_rate
+        # Must have at least some questions to evaluate
+        has_questions_to_evaluate = total_questions > 0
         
-        student_passes = (has_minimum_valid_questions and 
+        student_passes = (has_questions_to_evaluate and 
+                         all_questions_valid and 
                          has_evaluated_questions and 
-                         has_good_validation_rate and 
                          results["student_success_rate"] >= 1.0)
         
         results["github_classroom_result"] = "STUDENTS_QUIZ_KEIKO_WIN" if student_passes else "STUDENTS_QUIZ_KEIKO_LOSE"
         results["student_passes"] = student_passes
-        results["pass_criteria"] = f"Flexible criteria: min {min_valid_questions} valid questions + {required_validation_rate:.0%} validation rate + 100% win rate"
+        results["pass_criteria"] = "ALL questions must be valid + 100% win rate (stump LLM on ALL questions)"
 
         return results
 

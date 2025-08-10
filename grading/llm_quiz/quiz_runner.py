@@ -79,33 +79,19 @@ class QuizResults:
     
     @property
     def student_passes(self) -> bool:
-        """Whether the student passes the challenge (flexible criteria based on submission size)."""
+        """Whether the student passes the challenge (all questions must be valid)."""
         evaluated_questions = self.student_wins + self.llm_wins
         has_evaluated_questions = evaluated_questions > 0
         
-        # Flexible minimum valid questions based on total submission size
-        if self.total_questions == 1:
-            # Single question: must be valid and stump the LLM
-            min_valid_questions = 1
-            required_validation_rate = 1.0  # 100% validation rate (the 1 question must be valid)
-        elif self.total_questions == 2:
-            # Two questions: at least 1 valid, but prefer both valid
-            min_valid_questions = 1
-            required_validation_rate = 0.5  # At least 50% valid (1 out of 2)
-        else:
-            # Multiple questions: require majority to be valid to prevent gaming
-            min_valid_questions = max(2, int(self.total_questions * 0.6))  # At least 60% or minimum 2
-            required_validation_rate = 0.6  # At least 60% validation rate
+        # All questions must be valid - no gaming allowed
+        all_questions_valid = self.valid_questions == self.total_questions
         
-        has_minimum_valid_questions = self.valid_questions >= min_valid_questions
+        # Must have at least some questions to evaluate
+        has_questions_to_evaluate = self.total_questions > 0
         
-        # Check validation rate
-        validation_rate = self.valid_questions / self.total_questions if self.total_questions > 0 else 0.0
-        has_good_validation_rate = validation_rate >= required_validation_rate
-        
-        return (has_minimum_valid_questions and 
+        return (has_questions_to_evaluate and 
+                all_questions_valid and 
                 has_evaluated_questions and 
-                has_good_validation_rate and 
                 self.student_success_rate >= 1.0)
 
 
@@ -558,28 +544,19 @@ Your response must include:
             
             # Log the pass criteria for clarity
             if results.student_passes:
-                logger.info("✅ STUDENT PASSED - Met all flexible criteria: minimum valid questions, validation rate, and 100% win rate")
+                logger.info("✅ STUDENT PASSED - All questions valid and 100% win rate achieved")
             else:
-                # Calculate flexible criteria for this submission
-                if results.total_questions == 1:
-                    min_valid_questions = 1
-                    required_validation_rate = 1.0
-                elif results.total_questions == 2:
-                    min_valid_questions = 1
-                    required_validation_rate = 0.5
-                else:
-                    min_valid_questions = max(2, int(results.total_questions * 0.6))
-                    required_validation_rate = 0.6
-                
-                min_valid = results.valid_questions >= min_valid_questions
+                all_questions_valid = results.valid_questions == results.total_questions
                 validation_rate = results.valid_questions / results.total_questions if results.total_questions > 0 else 0.0
-                good_validation = validation_rate >= required_validation_rate
                 perfect_wins = results.student_success_rate >= 1.0
                 
-                logger.info(f"❌ STUDENT FAILED - Flexible criteria check:")
-                logger.info(f"   ✓ Min {min_valid_questions} valid questions: {min_valid} ({results.valid_questions}/{min_valid_questions})")
-                logger.info(f"   ✓ {required_validation_rate:.0%} validation rate: {good_validation} ({validation_rate:.1%})")
+                logger.info(f"❌ STUDENT FAILED - Criteria check:")
+                logger.info(f"   ✓ All questions valid: {all_questions_valid} ({results.valid_questions}/{results.total_questions})")
                 logger.info(f"   ✓ 100% win rate: {perfect_wins} ({results.student_success_rate:.1%})")
+                
+                if not all_questions_valid:
+                    invalid_count = results.total_questions - results.valid_questions
+                    logger.info(f"   📝 {invalid_count} question(s) were rejected during validation")
             
         except Exception as e:
             logger.error(f"Error saving results: {e}")
