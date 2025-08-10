@@ -773,14 +773,23 @@ STUDENT_WINS: [TRUE/FALSE] (TRUE if LLM got it wrong, FALSE if LLM got it right)
         else:
             results["student_success_rate"] = 0.0
 
-        # Add GitHub Classroom markers
-        has_valid_questions = results["valid_questions"] > 0
+        # Add GitHub Classroom markers with enhanced criteria to prevent gaming
+        min_valid_questions = 2
+        has_minimum_valid_questions = results["valid_questions"] >= min_valid_questions
         has_evaluated_questions = evaluated_questions > 0
-        student_passes = has_valid_questions and has_evaluated_questions and results["student_success_rate"] >= 1.0
+        
+        # Require that at least 80% of submitted questions are valid (not rejected)
+        validation_rate = results["valid_questions"] / results["total_questions"] if results["total_questions"] > 0 else 0.0
+        has_good_validation_rate = validation_rate >= 0.8
+        
+        student_passes = (has_minimum_valid_questions and 
+                         has_evaluated_questions and 
+                         has_good_validation_rate and 
+                         results["student_success_rate"] >= 1.0)
         
         results["github_classroom_result"] = "STUDENTS_QUIZ_KEIKO_WIN" if student_passes else "STUDENTS_QUIZ_KEIKO_LOSE"
         results["student_passes"] = student_passes
-        results["pass_criteria"] = "At least one valid question AND win rate = 100% (stump LLM on ALL questions, system errors excluded)"
+        results["pass_criteria"] = "Minimum 2 valid questions + 80% validation rate + 100% win rate (stump LLM on ALL valid questions)"
 
         return results
 

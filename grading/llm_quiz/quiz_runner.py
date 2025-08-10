@@ -79,11 +79,22 @@ class QuizResults:
     
     @property
     def student_passes(self) -> bool:
-        """Whether the student passes the challenge (100% win rate on valid questions)."""
-        has_valid_questions = self.valid_questions > 0
+        """Whether the student passes the challenge (requires minimum valid questions + high success rate)."""
+        # Require minimum of 2 valid questions to prevent gaming the system
+        min_valid_questions = 2
+        has_minimum_valid_questions = self.valid_questions >= min_valid_questions
+        
         evaluated_questions = self.student_wins + self.llm_wins
         has_evaluated_questions = evaluated_questions > 0
-        return has_valid_questions and has_evaluated_questions and self.student_success_rate >= 1.0
+        
+        # Also require that at least 80% of submitted questions are valid (not rejected)
+        validation_rate = self.valid_questions / self.total_questions if self.total_questions > 0 else 0.0
+        has_good_validation_rate = validation_rate >= 0.8
+        
+        return (has_minimum_valid_questions and 
+                has_evaluated_questions and 
+                has_good_validation_rate and 
+                self.student_success_rate >= 1.0)
 
 
 class QuizRunner:
@@ -532,6 +543,20 @@ Your response must include:
                 json.dump(results_dict, f, indent=2, cls=DataclassJSONEncoder)
             
             logger.info(f"Results saved to {output_file}")
+            
+            # Log the pass criteria for clarity
+            if results.student_passes:
+                logger.info("✅ STUDENT PASSED - Met all criteria: minimum valid questions, validation rate, and 100% win rate")
+            else:
+                min_valid = results.valid_questions >= 2
+                validation_rate = results.valid_questions / results.total_questions if results.total_questions > 0 else 0.0
+                good_validation = validation_rate >= 0.8
+                perfect_wins = results.student_success_rate >= 1.0
+                
+                logger.info(f"❌ STUDENT FAILED - Criteria check:")
+                logger.info(f"   ✓ Min 2 valid questions: {min_valid} ({results.valid_questions}/2)")
+                logger.info(f"   ✓ 80% validation rate: {good_validation} ({validation_rate:.1%})")
+                logger.info(f"   ✓ 100% win rate: {perfect_wins} ({results.student_success_rate:.1%})")
             
         except Exception as e:
             logger.error(f"Error saving results: {e}")
