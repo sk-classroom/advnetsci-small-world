@@ -3,10 +3,13 @@
   "hostRequirements": {
     "cpus": 2
   },
+  "containerEnv": {
+    "UV_LINK_MODE": "copy"
+  },
   "waitFor": "onCreateCommand",
-  "updateContentCommand": "curl -LsSf https://astral.sh/uv/install.sh | sh && export PATH=\"$HOME/.local/bin:$HOME/.cargo/bin:$PATH\" && uv venv && uv pip install marimo && uv pip install -r requirements.txt",
+  "onCreateCommand": "curl -LsSf https://astral.sh/uv/install.sh | sh",
+  "updateContentCommand": "bash .devcontainer/setup.sh",
   "postCreateCommand": "",
-  "postStartCommand": "export PATH=\"$HOME/.local/bin:$HOME/.cargo/bin:$PATH\" && source .venv/bin/activate",
   "customizations": {
     "codespaces": {
       "openFiles": []
@@ -16,7 +19,11 @@
         "ms-toolsai.jupyter",
         "ms-python.python",
         "marimo-team.vscode-marimo"
-      ]
+      ],
+      "settings": {
+        "python.defaultInterpreterPath": "./.venv/bin/python",
+        "marimo.pythonPath": "./.venv/bin/python"
+      }
     }
   }
 }
