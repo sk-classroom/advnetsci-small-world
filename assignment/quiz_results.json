@@ -37,17 +37,17 @@
       "llm_answer": "Question rejected during validation",
       "is_valid": false,
       "student_wins": false,
-      "evaluation_explanation": "Invalid student question: The question asks for the definition of an Euler circuit, but this specific term and its definition are not present in the provided context materials. The context covers related graph theory concepts like paths and walks, but not Euler circuits.",
+      "evaluation_explanation": "Invalid student question: The question asks for a definition of an Euler circuit, but the provided context does not contain this specific definition. The context discusses general network concepts like paths and walks but does not elaborate on Euler circuits.",
       "validation_issues": [
         "context_mismatch"
       ],
       "revision_guidance": null,
       "difficulty_assessment": "TOO_EASY",
       "improvement_suggestions": [
-        "The question asks for a definition that is not present in the provided context. Please revise the question to align with the content, or provide context that defines an Euler circuit."
+        "The provided context does not define an Euler circuit. Please provide context that defines or explains Euler circuits."
       ],
       "clarity_score": "CLEAR",
-      "error": "The question asks for the definition of an Euler circuit, but this specific term and its definition are not present in the provided context materials. The context covers related graph theory concepts like paths and walks, but not Euler circuits."
+      "error": "The question asks for a definition of an Euler circuit, but the provided context does not contain this specific definition. The context discusses general network concepts like paths and walks but does not elaborate on Euler circuits."
     }
   ],
   "feedback_summary": "No questions were successfully processed. Please check your quiz format and try again.",
