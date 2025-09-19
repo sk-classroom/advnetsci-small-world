@@ -366,24 +366,20 @@ def _(igraph, np, pd):
 
             # Ensure graph is still connected for meaningful metrics
             if g.is_connected():
-                try:
-                    # Compute metrics using the implemented functions
-                    C = compute_global_clustering(g)
-                    L = compute_average_path_length(g)
-                    sigma = compute_small_world_coefficient(g)
+                # Compute metrics using the implemented functions
+                C = compute_global_clustering(g)
+                L = compute_average_path_length(g)
+                sigma = compute_small_world_coefficient(g)
 
-                    results.append(
-                        {
-                            "p": p,
-                            "clustering": C,
-                            "path_length": L,
-                            "small_world": sigma,
-                            "edges_rewired": edges_rewired_so_far,
-                        }
-                    )
-                except:
-                    # Skip if computation fails
-                    continue
+                results.append(
+                    {
+                        "p": p,
+                        "clustering": C,
+                        "path_length": L,
+                        "small_world": sigma,
+                        "edges_rewired": edges_rewired_so_far,
+                    }
+                )
 
         return pd.DataFrame(results)
 
